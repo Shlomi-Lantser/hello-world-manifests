@@ -1,0 +1,27 @@
+# Crossplane Helm Values
+# Install with:
+#   helm repo add crossplane-stable https://charts.crossplane.io/stable
+#   helm repo update
+#   helm install crossplane crossplane-stable/crossplane \
+#     -n crossplane-system --create-namespace \
+#     -f helm/crossplane-values.yaml
+
+args:
+  # Enable pod security context
+  - --enable-usages
+
+resourcesCrossplane:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+resourcesRBACManager:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi

@@ -1,0 +1,55 @@
+# AWS Load Balancer Controller - Helm Values
+# Install with:
+#   helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+#     -n kube-system \
+#     -f helm/aws-load-balancer-controller-values.yaml
+
+# -- Cluster name (required)
+clusterName: hello-world-dev-cluster
+
+# -- AWS region
+region: eu-west-1
+
+# -- VPC ID (get from: terraform output vpc_id)
+vpcId: ""  # FILL IN: terraform output vpc_id
+
+# -- Service account configuration
+# Pod Identity handles IAM credentials automatically - no role ARN annotation needed
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller
+  annotations: {}  # No IRSA annotation needed - Pod Identity handles this
+
+# -- Number of controller replicas
+# 1 is fine for dev, use 2 for production
+replicaCount: 1
+
+# -- Resource requests/limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# -- Only watch ingress/services with matching IngressClass
+# Prevents LBC from trying to manage ingresses meant for other controllers
+ingressClass: alb
+
+# -- Create the IngressClass resource automatically
+createIngressClassResource: true
+
+# -- Default tags applied to all AWS resources created by LBC
+defaultTags:
+  Project: hello-world
+  Environment: dev
+  ManagedBy: helm
+
+# -- Enable shield, waf, and wafv2 only if you have those services
+enableShield: false
+enableWaf: false
+enableWafv2: false
+
+# -- Log level (info or debug)
+logLevel: info

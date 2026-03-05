@@ -1,0 +1,45 @@
+# Istio Ingress Gateway Helm Values
+# This creates a LoadBalancer service that AWS will provision as an NLB
+# Install with:
+#   helm install istio-ingressgateway istio/gateway -n istio-system -f helm/istio-gateway-values.yaml
+
+# Service type - NLB for AWS (works better with Istio than ALB)
+service:
+  type: LoadBalancer
+  annotations:
+    # Use AWS Network Load Balancer (Layer 4 - required for Istio TLS passthrough)
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+
+    # Distribute traffic across all AZs even if targets are only in one AZ
+    service.beta.kubernetes.io/aws-load-balancer-attributes: "load_balancing.cross_zone.enabled=true"
+
+    # IMPORTANT: Istio's health endpoint is on port 15021, NOT the traffic port (8080)
+    # Without this, NLB probes 8080 and gets inconsistent responses from Envoy → target flapping
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "15021"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/healthz/ready"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "HTTP"
+
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 8443
+      protocol: TCP
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+replicaCount: 1

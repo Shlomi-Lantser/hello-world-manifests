@@ -1,0 +1,16 @@
+# Crossplane AWS Provider - S3 Family
+#
+# Upbound publishes "family" providers that are scoped to a single AWS service.
+# Using the S3 family provider instead of the full AWS provider keeps resource
+# usage low (the full provider installs ~900 CRDs).
+#
+# After applying this, Crossplane will install the provider pod automatically.
+# Wait for: kubectl get provider provider-aws-s3 → HEALTHY=True
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-s3
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-s3:v1.14.0
+  runtimeConfigRef:
+    name: provider-aws-s3

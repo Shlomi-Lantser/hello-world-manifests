@@ -1,0 +1,14 @@
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketVersioning
+metadata:
+  name: hello-world-versioning
+spec:
+  forProvider:
+    region: eu-west-1
+    # This links the versioning configuration to your specific bucket
+    bucketRef:
+      name: hello-world-crossplane-demo
+    versioningConfiguration:
+      - status: Enabled # Can be Enabled or Suspended
+  providerConfigRef:
+    name: default

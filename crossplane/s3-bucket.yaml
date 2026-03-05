@@ -1,0 +1,35 @@
+# S3 Bucket — Crossplane Managed Resource
+#
+# This Kubernetes manifest provisions a real S3 bucket in AWS.
+# Crossplane reconciles the desired state (this manifest) with AWS continuously.
+#
+# Verify in AWS Console:
+#   S3 → Buckets → hello-world-crossplane-demo
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: hello-world-crossplane-demo
+  annotations:
+    # Prevent bucket deletion when manifest is deleted (safety for real data)
+    # Change to "Delete" if you want Crossplane to delete the bucket on manifest removal
+    crossplane.io/composition-delete-policy: Orphan
+spec:
+  forProvider:
+    # Must match the region your EKS cluster is in
+    region: eu-west-1
+
+    # Tags visible in AWS Console
+    tags:
+      Name: hello-world-crossplane-demo
+      ManagedBy: crossplane
+      Environment: dev
+      Project: hello-world
+
+  # Reference the ProviderConfig we created above
+  providerConfigRef:
+    name: default
+
+  # What happens to the AWS resource when this manifest is deleted:
+  # Delete  = Crossplane deletes the S3 bucket
+  # Orphan  = Crossplane stops managing it but leaves it in AWS
+  deletionPolicy: Delete

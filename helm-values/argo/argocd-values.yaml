@@ -1,0 +1,110 @@
+# ArgoCD Helm Values
+# Install with:
+#   helm repo add argo https://argoproj.github.io/argo-helm
+#   helm repo update
+#   helm install argocd argo/argo-cd -n argocd --create-namespace -f helm/argocd-values.yaml
+
+global:
+  domain: ""  # Optional: set if you have a custom domain
+
+# -----------------------------------------------------------------------
+# ArgoCD Server
+# -----------------------------------------------------------------------
+server:
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  service:
+    type: ClusterIP
+
+  ingress:
+    enabled: false
+
+# -----------------------------------------------------------------------
+# ArgoCD Repo Server
+# -----------------------------------------------------------------------
+repoServer:
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# -----------------------------------------------------------------------
+# ArgoCD Application Controller
+# -----------------------------------------------------------------------
+controller:
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# -----------------------------------------------------------------------
+# Redis - PVC for persistence
+# -----------------------------------------------------------------------
+redis:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+  master:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 8Gi
+      accessModes:
+        - ReadWriteOnce
+
+# -----------------------------------------------------------------------
+# Notifications controller
+# -----------------------------------------------------------------------
+notifications:
+  enabled: true
+
+# -----------------------------------------------------------------------
+# ApplicationSet controller
+# -----------------------------------------------------------------------
+applicationSet:
+  enabled: true
+  replicas: 1
+
+# -----------------------------------------------------------------------
+# Dex (SSO) - disabled
+# -----------------------------------------------------------------------
+dex:
+  enabled: false
+
+# -----------------------------------------------------------------------
+# ArgoCD configs
+# -----------------------------------------------------------------------
+configs:
+  params:
+    server.insecure: true
+
+  secret:
+    # Prevent ArgoCD from auto-generating admin password on fresh install.
+    # ESO pre-creates argocd-secret with the bcrypt hash from Secrets Manager
+    # BEFORE ArgoCD installs, so ArgoCD finds the password already set.
+    createSecret: false

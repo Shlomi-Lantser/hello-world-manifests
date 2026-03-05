@@ -1,0 +1,46 @@
+# Istio Control Plane (istiod) Helm Values
+# Install with:
+#   helm repo add istio https://istio-release.storage.googleapis.com/charts
+#   helm repo update
+#   helm install istio-base istio/base -n istio-system --create-namespace
+#   helm install istiod istio/istiod -n istio-system -f helm/istiod-values.yaml
+
+pilot:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Auto-inject sidecars into labeled namespaces
+  autoscaleEnabled: false
+
+# Global mesh config
+meshConfig:
+  # Enable access logging for debugging
+  accessLogFile: /dev/stdout
+
+  # Default mTLS mode for the mesh
+  # STRICT = all pod-to-pod traffic must use mTLS
+  defaultConfig:
+    proxyMetadata: {}
+
+  # Enable auto mTLS (negotiates mTLS automatically between sidecars)
+  enableAutoMtls: true
+
+global:
+  # Proxy (sidecar) resource limits
+  proxy:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  # Log level for sidecars
+  logging:
+    level: "default:info"
